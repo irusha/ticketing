@@ -10,11 +10,7 @@ public class ConsoleReaderConfig {
     private boolean throwExceptionUponInputError;
 
     public ConsoleReaderConfig(Builder builder) {
-        this.inputMessage = builder.inputMessage;
-        this.retryMessage = builder.retryMessage;
-        this.inputCompletedMessageFunction = builder.inputCompletedMessageFunction;
-        this.inputError = builder.inputError;
-        this.throwExceptionUponInputError = builder.throwExceptionUponInputError;
+        this(builder.inputMessage, builder.retryMessage, builder.inputError, builder.throwExceptionUponInputError, builder.inputCompletedMessageFunction);
     }
 
     public ConsoleReaderConfig(String inputMessage, String retryMessage, ConsoleReaderException inputError, boolean throwExceptionUponInputError, Function<String, String> inputCompletedMessageFunction) {
@@ -26,8 +22,7 @@ public class ConsoleReaderConfig {
     }
 
     public ConsoleReaderConfig(String inputMessage, String retryMessage) {
-        this.inputMessage = inputMessage;
-        this.retryMessage = retryMessage;
+        this(inputMessage, retryMessage, null, false, null);
     }
 
     public void setInputMessage(String inputMessage) {
