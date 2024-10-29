@@ -1,13 +1,14 @@
 package com.ticker.ticketing;
 
-import org.springframework.boot.SpringApplication;
+import com.ticker.ticketing.core.MainRunnable;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class TicketingApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TicketingApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        Runnable runnable = MainRunnable.getInstance(args);
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
 }
