@@ -10,31 +10,39 @@ import java.util.Scanner;
 public class CLIReaderUtil {
     public static <T> T readValue(ConsoleReaderConfig config, ValidationProcessor validationProcessor, ValueParser<T> valueParser) throws ConsoleReaderException, InvalidConfigException {
         Scanner scanner = new Scanner(System.in);
-        String input = null;
+        T parsedValue = null;
+        int tries = 0;
+
+        if (config.isThrowExceptionUponInputError() && config.getInputError() == null) {
+            throw new InvalidConfigException(Constants.CONSOLE_READER_CONF_EXCEPTION_MISMATCH_MESSAGE);
+        } else if (config.getMaxRetryCount() != Integer.MAX_VALUE && config.isThrowExceptionUponInputError()) {
+            throw new InvalidConfigException(Constants.CONSOLE_READER_CONF_EXCEPTION_MAX_RETRY_WITH_VALIDATION_ERRORS);
+        }
 
         ConsoleWriter writer = ConsoleWriterFactory.getWriter();
         writer.write(config.getInputMessage());
-        while (input == null) {
+        while (parsedValue == null) {
+            tries++;
             String scannedValue = scanner.nextLine();
             if (validationProcessor.validate(scannedValue)) {
-                input = scannedValue;
+                parsedValue = valueParser.parse(scannedValue);
             } else {
                 if (config.isThrowExceptionUponInputError() && config.getInputError() != null) {
                     throw config.getInputError();
-                } else if (config.isThrowExceptionUponInputError() && config.getInputError() == null) {
-                    throw new InvalidConfigException(Constants.CONSOLE_READER_CONF_EXCEPTION_MISMATCH_MESSAGE);
                 } else {
-                    writer.write(config.getRetryMessage());
+                    if (config.getMaxRetryCount() != Integer.MAX_VALUE && tries == config.getMaxRetryCount()) {
+                        throw new ConsoleReaderException(Constants.MAX_RETRY_COUNT_EXCEEDED);
+                    }
+                    else {
+                        writer.write(config.getRetryMessage());
+                    }
                 }
             }
         }
 
-        T parsedVal = valueParser.parse(input);
-
         if (config.getInputCompletedMessageFunction() != null) {
-            writer.write(config.getInputCompletedMessageFunction().apply(parsedVal.toString()));
+            writer.write(config.getInputCompletedMessageFunction().apply(parsedValue.toString()));
         }
-
-        return parsedVal;
+        return parsedValue;
     }
 }

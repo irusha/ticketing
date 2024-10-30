@@ -1,5 +1,7 @@
 package com.ticker.ticketing.util.consolereader;
 
+import com.ticker.ticketing.util.Constants;
+
 import java.util.function.Function;
 
 public class ConsoleReaderConfig {
@@ -8,21 +10,27 @@ public class ConsoleReaderConfig {
     private Function<String, String> inputCompletedMessageFunction;
     private ConsoleReaderException inputError;
     private boolean throwExceptionUponInputError;
+    private int maxRetryCount;
 
     public ConsoleReaderConfig(Builder builder) {
-        this(builder.inputMessage, builder.retryMessage, builder.inputError, builder.throwExceptionUponInputError, builder.inputCompletedMessageFunction);
+        this(builder.inputMessage, builder.retryMessage, builder.inputError, builder.throwExceptionUponInputError, builder.inputCompletedMessageFunction, builder.maxRetryCount);
     }
 
-    public ConsoleReaderConfig(String inputMessage, String retryMessage, ConsoleReaderException inputError, boolean throwExceptionUponInputError, Function<String, String> inputCompletedMessageFunction) {
+    public ConsoleReaderConfig(String inputMessage, String retryMessage, ConsoleReaderException inputError, boolean throwExceptionUponInputError, Function<String, String> inputCompletedMessageFunction, int maxRetryCount) {
+        if (maxRetryCount < 1) {
+            throw new IllegalArgumentException(Constants.NO_NEGATIVE_RETRY_COUNT_ERROR);
+        }
+
         this.inputMessage = inputMessage;
         this.retryMessage = retryMessage;
         this.inputCompletedMessageFunction = inputCompletedMessageFunction;
         this.inputError = inputError;
         this.throwExceptionUponInputError = throwExceptionUponInputError;
+        this.maxRetryCount = maxRetryCount;
     }
 
     public ConsoleReaderConfig(String inputMessage, String retryMessage) {
-        this(inputMessage, retryMessage, null, false, null);
+        this(inputMessage, retryMessage, null, false, null, Integer.MAX_VALUE);
     }
 
     public void setInputMessage(String inputMessage) {
@@ -39,6 +47,17 @@ public class ConsoleReaderConfig {
 
     public void setInputError(ConsoleReaderException inputError) {
         this.inputError = inputError;
+    }
+
+    public int getMaxRetryCount() {
+        return maxRetryCount;
+    }
+
+    public void setMaxRetryCount(int maxRetryCount) {
+        if (maxRetryCount < 1) {
+            throw new IllegalArgumentException(Constants.NO_NEGATIVE_RETRY_COUNT_ERROR);
+        }
+        this.maxRetryCount = maxRetryCount;
     }
 
     public String getRetryMessage() {
@@ -71,6 +90,7 @@ public class ConsoleReaderConfig {
         private Function<String, String> inputCompletedMessageFunction;
         private ConsoleReaderException inputError;
         private boolean throwExceptionUponInputError;
+        private int maxRetryCount = Integer.MAX_VALUE;
 
         public Builder setInputMessage(String inputMessage) {
             this.inputMessage = inputMessage;
@@ -94,6 +114,15 @@ public class ConsoleReaderConfig {
 
         public Builder setThrowExceptionUponInputError(boolean throwExceptionUponInputError) {
             this.throwExceptionUponInputError = throwExceptionUponInputError;
+            return this;
+        }
+
+        public Builder setMaxRetryCount(int maxRetryCount) {
+            if (maxRetryCount < 1) {
+                throw new IllegalArgumentException(Constants.NO_NEGATIVE_RETRY_COUNT_ERROR);
+            }
+
+            this.maxRetryCount = maxRetryCount;
             return this;
         }
 

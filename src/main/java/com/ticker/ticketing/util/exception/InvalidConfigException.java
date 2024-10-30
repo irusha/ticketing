@@ -5,9 +5,15 @@ public class InvalidConfigException extends Exception {
         super(message);
     }
 
-    public InvalidConfigException(String message, Throwable cause) {}
+    public InvalidConfigException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    public InvalidConfigException(Throwable cause) {}
+    public InvalidConfigException(Throwable cause) {
+        super(cause);
+    }
 
-    public InvalidConfigException() {}
+    public InvalidConfigException() {
+        super();
+    }
 }
